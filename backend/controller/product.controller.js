@@ -1,27 +1,24 @@
 import express from 'express';
-import dotenv from 'dotenv';
-import dbConnect from './config/db.js'
-import product from './model/theSchema.js'
 import mongoose from 'mongoose';
-import ProductRoutes from './router/product.route.js'
+import product from '../model/theSchema.js';
 
-dotenv.config();
 
-const app=express();
-app.use(express.json());
 
-const port = 5001;
 
-app.use('/routerapi/products', ProductRoutes);
+export const getProducts = async (req,res) => {
+    try {
 
-app.get('/', (req,res)=>{
-
-    res.send('Hello World!');
+        const products = await product.find();
+        res.status(200).json({success:true, data:products});
+        
+    } catch (error) {
+        console.log("error in getting product");
+        res.status(400).json({success:false, message: "error in getting products"});
+        
+    }
 }
-);
 
-
-app.post('/product', async (req, res) => {
+export const createProducts = async (req, res) => {
     const newProduct = new product(req.body);
     if(!newProduct){
         return res.status(400).send('Invalid product data');
@@ -39,23 +36,9 @@ app.post('/product', async (req, res) => {
         console.log("error in creating product");
         
     }
-});
+}
 
-
-app.get('/api/products', async (req,res) => {
-    try {
-
-        const products = await product.find();
-        res.status(200).json({success:true, data:products});
-        
-    } catch (error) {
-        console.log("error in getting product");
-        res.status(400).json({success:false, message: "error in getting products"});
-        
-    }
-})
-
-app.delete('/api/products/:id', async (req,res) => {
+export const deleteProducts = async (req,res) => {
     const {id} = req.params;
     try {
         await product.findByIdAndDelete(id);
@@ -67,9 +50,9 @@ app.delete('/api/products/:id', async (req,res) => {
         
     }
 
-})
+}
 
-app.put('/api/products/:id', async (req,res) =>{
+export const putProducts = async (req,res) =>{
     const {id} = req.params;
 
     const product = req.body;
@@ -96,9 +79,4 @@ app.put('/api/products/:id', async (req,res) =>{
         
     }
 
-})
-
-app.listen(port, () => {
-    dbConnect();
-    console.log(`Server running on port ${port}`);
-})
+}
